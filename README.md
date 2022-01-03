@@ -2,8 +2,6 @@
 
 AcLog is a zero-dependency PHP package to log actions to files. This is not for logging errors/warnings/fatal errors, you should probably use Monolog for that. This is meant for history logging actions users make - simple and ready to go.
 
-You should consider to zip (7zip is best) the log files after a few days - it will save ALOT of diskspace.
-
 ## Requirements
 - PHP 8.0+
 
@@ -35,6 +33,9 @@ $acl = new AcLog(
 ```
 
 For more options see the constructor method of the [AcLog.php](https://github.com/xy2z/AcLog/blob/master/src/AcLog.php) file.
+
+## Tips
+- Consider to zip (7zip is best) the log files after a few days - it will save ALOT of diskspace.
 
 
 ## Analyse code
