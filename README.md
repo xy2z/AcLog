@@ -34,6 +34,7 @@ $acl = new AcLog(
 
 For more options see the constructor method of the [AcLog.php](https://github.com/xy2z/AcLog/blob/master/src/AcLog.php) file.
 
+
 ## Tips
 - Consider to zip (7zip is best) the log files after a few days - it will save ALOT of diskspace.
 
