@@ -1,5 +1,8 @@
 parameters:
-	level: 8
+	level: 6
 	paths:
 		- src
-#		- tests
+		- tests
+	ignoreErrors:
+		- '/^Unsafe call to private method [a-zA-Z0-9\\]+::[a-zA-Z_]+\(\) through static::\.$/'
+		- '/^Call to an undefined static method xy2z\\AcLog\\AcLogStatic::[a-zA-Z_]+\(\)\.$/'

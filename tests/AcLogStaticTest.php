@@ -2,20 +2,19 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../src/AcLog.php';
+// require_once __DIR__ . '/../src/AcLog.php';
+require_once __DIR__ . '/../src/AcLogStatic.php';
 
 use xy2z\AcLog\AcLog;
+use xy2z\AcLog\AcLogStatic;
 use PHPUnit\Framework\TestCase;
 
-class AcLogTest extends TestCase {
+class AcLogStaticTest extends TestCase {
 	private string $logdir;
 
 	private static function file_contains(string $path, string $needle): bool {
 		$log_content = file_get_contents($path);
-		// var_dump($log_content);
-		// var_dump('find: ' . $needle);
 		return strpos($log_content, $needle) !== false;
-		// return (strpos($log_content, $needle) !== false));
 	}
 
 	private function cleanup(): void {
@@ -30,7 +29,7 @@ class AcLogTest extends TestCase {
 			}
 
 			// Remove the file.
-			unlink($this->logdir . $item);
+			$unlink = unlink($this->logdir . $item);
 		}
 
 		// Remove the dir, now that it should be empty.
@@ -38,30 +37,33 @@ class AcLogTest extends TestCase {
 	}
 
 	public function setUp(): void {
-		$this->logdir = __DIR__ . '/logs/';
-		// $this->cleanup();
+		$this->logdir = __DIR__ . '/logs-static/';
 	}
 
 	public function tearDown(): void {
+		// We must manually destruct() the object, so the file is closed (fclose())
+		// or else we cannot delete the test files and directory.
+		AcLogStatic::destroy();
 		$this->cleanup();
 	}
 
 	public function testSimple(): void {
-		$aclog = new AcLog($this->logdir);
+		AcLogStatic::setup($this->logdir);
 		$this->assertDirectoryExists($this->logdir);
 		$this->assertFileExists($this->logdir . date('Y-m-d') . '.log');
 	}
 
 	public function testOptions(): void {
 		// Test as many options as possible.
-		$aclog = new AcLog(
-			log_dir: $this->logdir,
-			output_method: AcLog::VAR_DUMP,
-			filename_date_format: 'Ymd',
-			header_date_format: 'Ymd',
-			line_breaks_between_header: 6,
-			log_date_format: 'YmHi'
-		);
+		AcLogStatic::setup([
+			'log_dir' => $this->logdir,
+			'output_method' => AcLog::VAR_DUMP,
+			'filename_date_format' => 'Ymd',
+			'header_date_format' => 'Ymd',
+			'line_breaks_between_header' => 6,
+			'log_date_format' => 'YmHi'
+		]);
+		AcLogStatic::set_testing(true);
 
 		$log_path = $this->logdir . date('Ymd') . '.log';
 
@@ -72,7 +74,7 @@ class AcLogTest extends TestCase {
 		$this->assertFileExists($log_path);
 
 		// Assert output method is "VAR_DUMP"
-		$aclog->log("vardump");
+		AcLogStatic::log("vardump");
 		$this->assertTrue(static::file_contains($log_path, 'string(7) "vardump"'));
 
 		// Test option: header_date_format
@@ -85,54 +87,54 @@ class AcLogTest extends TestCase {
 		$this->assertTrue(static::file_contains($log_path, '] ' . date('YmHi') . ' | '));
 
 		// Test method: get_log_dir()
-		$this->assertSame($aclog->get_log_dir(), $this->logdir);
+		$this->assertSame(AcLogStatic::get_log_dir(), $this->logdir);
 
 		// Test method: get_log_file()
-		$this->assertSame(realpath($aclog->get_log_file()), realpath($log_path));
-
-		// ------------
-		// Lastly, test option: line_breaks_between_header
-		unset($aclog); // calls the destruct().
-		$this->assertTrue(static::file_contains($log_path, str_repeat(PHP_EOL, 6)));
+		$this->assertSame(realpath(AcLogStatic::get_log_file()), realpath($log_path));
 	}
 
 	public function testLogFound(): void {
-		$aclog = new AcLog($this->logdir);
+		AcLogStatic::setup($this->logdir);
+		AcLogStatic::set_testing(true);
 		$this->assertFileExists($this->logdir . date('Y-m-d') . '.log');
 
 		// Log the string.
 		$string = 'find-this-string.';
-		$aclog->log($string);
+		AcLogStatic::log($string);
 
 		// Make sure the string exists in the log file.
 		$this->assertTrue(static::file_contains($this->logdir . date('Y-m-d') . '.log', "'" . $string . "'"));
 	}
 
 	public function testCallbacks(): void {
-		$aclog = new AcLog($this->logdir);
+		AcLogStatic::setup($this->logdir);
+		AcLogStatic::set_testing(true);
 
-		$aclog->add_log_append_callback(function () {
+		AcLogStatic::add_log_append_callback(function () {
 			return 'callback-1.';
 		});
-		$aclog->add_log_append_callback(function () {
+		AcLogStatic::add_log_append_callback(function () {
 			return 'callback-2.';
 		});
 
-		$aclog->log('hello.', 'andgoodbye.', ['array.']);
-		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'callback-1.'));
-		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'callback-2.'));
-		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'hello.'));
-		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'andgoodbye.'));
-		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'array.'));
+		AcLogStatic::log('hello.', 'andgoodbye.', ['array.']);
+		$this->assertTrue(static::file_contains(AcLogStatic::get_log_file(), 'callback-1.'));
+		$this->assertTrue(static::file_contains(AcLogStatic::get_log_file(), 'callback-2.'));
+		$this->assertTrue(static::file_contains(AcLogStatic::get_log_file(), 'hello.'));
+		$this->assertTrue(static::file_contains(AcLogStatic::get_log_file(), 'andgoodbye.'));
+		$this->assertTrue(static::file_contains(AcLogStatic::get_log_file(), 'array.'));
 	}
 
-	public function testClearFile(): void {
-		$aclog = new AcLog($this->logdir);
-		$aclog->log('hello.');
-		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'hello.'));
-		$this->assertNotEmpty(file_get_contents($aclog->get_log_file()));
 
-		$aclog->clear_file();
-		$this->assertEmpty(file_get_contents($aclog->get_log_file()));
+	public function testClearFile(): void {
+		AcLogStatic::setup($this->logdir);
+		AcLogStatic::set_testing(true);
+
+		AcLogStatic::log('hello.');
+		$this->assertTrue(static::file_contains(AcLogStatic::get_log_file(), 'hello.'));
+		$this->assertNotEmpty(file_get_contents(AcLogStatic::get_log_file()));
+
+		AcLogStatic::clear_file();
+		$this->assertEmpty(file_get_contents(AcLogStatic::get_log_file()));
 	}
 }

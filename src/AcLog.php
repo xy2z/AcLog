@@ -10,6 +10,7 @@ class AcLog {
 	protected mixed /* resource */  $handle;
 	protected bool $is_header_logged = false;
 	protected int $count_logged = 0;
+	protected bool $is_testing = false;
 
 	public const VAR_EXPORT = 0;
 	public const PRINT_R = 1;
@@ -43,12 +44,21 @@ class AcLog {
 		}
 	}
 
-	public function __destruct() {
+	public function destroy(): void {
 		// Add line breaks, only if anything was logged.
+		if (!is_resource($this->handle)) {
+			return;
+		}
+
 		if ($this->count_logged) {
 			fwrite($this->handle, str_repeat(PHP_EOL, $this->line_breaks_between_header));
 		}
+
 		fclose($this->handle);
+	}
+
+	public function __destruct() {
+		$this->destroy();
 	}
 
 	protected function print_header(): void {
@@ -67,7 +77,12 @@ class AcLog {
 			$datetime = '';
 
 			if ($this->include_trace) {
-				$caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[0];
+				$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+				if ($this->is_testing) {
+					$caller = $trace[2];
+				} else {
+					$caller = $trace[0];
+				}
 				$trace = '[' . $caller['file'] . ':' . $caller['line'] . '] ';
 			}
 
@@ -117,5 +132,11 @@ class AcLog {
 
 	public function get_log_file(): string {
 		return $this->log_file;
+	}
+
+	public function set_testing(bool $val): void {
+		// This is only to be used for phpunit testing for the static class.
+		// This way it won't affect the perfomance of the log() method.
+		$this->is_testing = true;
 	}
 }

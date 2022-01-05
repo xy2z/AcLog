@@ -64,15 +64,17 @@ $aclog->add_log_append_callback(array('MyClass', 'myCallbackMethod'));
 
 Pull Requests are welcome, just make sure your code is tested, analysed and fixed - see below.
 
+Remember to make tests for both classes: `AcLog` and `AcLogStatic`.
+
 ```
+# Fix Coding Standards (php-cs-fixer)
+vendor/bin/php-cs-fixer fix
+
 # Analyse code (phpstan)
 vendor/bin/phpstan analyse -c phpstan.neon
 
 # Test code (phpunit)
 vendor/bin/phpunit tests --testdox
-
-# Fix Coding Standards (php-cs-fixer)
-vendor/bin/php-cs-fixer fix
 ```
 
 
