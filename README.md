@@ -26,6 +26,7 @@ $aclog->log($var); // can be any type: object, array, string, int, etc.
 $aclog->log($var, $foo, $bar, $etc); // as many arguments you want.
 ```
 
+
 ### Set Options
 ```php
 $aclog = new AcLog(
@@ -39,6 +40,40 @@ $aclog = new AcLog(
 ```
 
 For more options see the constructor method of the [AcLog.php](https://github.com/xy2z/AcLog/blob/master/src/AcLog.php) file.
+
+
+### Static Class
+It is also possible to use it as a static class, if you prefer.
+```php
+use xy2z\AcLog\AcLogStatic;
+
+AcLogStatic::setup(__DIR__ . '/logs');
+AcLogStatic::log($var);
+```
+
+If you want to set options in the static class, you need to set them as an array.
+```php
+AcLogStatic::setup([
+    'log_dir' => __DIR__ . '/logs',
+    'log_date_format' => false,
+    'include_trace' => false,
+    'output_method' => AcLog::VAR_DUMP,
+    'line_breaks_between_header' => 4,
+    // etc.
+]);
+```
+
+Other than that, it should behave exactly the same as the AcLog class, and all public methods and properties are also available.
+
+
+#### Static Alias
+If you want a shorter name for the static class, you can alias it.
+```php
+use xy2z\AcLog\AcLogStatic as acl;
+
+acl::setup(__DIR__ . '/logs');
+acl::log($var);
+```
 
 
 ### Log Callbacks
