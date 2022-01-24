@@ -5,7 +5,7 @@
     "type": "library",
     "autoload": {
         "psr-4": {
-            "xy2z\\": "src/"
+            "xy2z\\AcLog\\": "src/"
         }
     },
     "authors": [
