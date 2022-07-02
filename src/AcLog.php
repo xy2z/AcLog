@@ -25,17 +25,24 @@ class AcLog {
 
 		// Options:
 		protected int $output_method = self::VAR_EXPORT,
-		protected string $filename_date_format = 'Y-m-d',
+		protected string|null $filename = null,
 		protected string $header_date_format = 'r',
 		protected int|null $file_chmod = null, // int (octal)
 		protected int $line_breaks_between_header = 2,
 		protected bool $include_trace = true,
 		protected string $log_date_format = 'H:i:s.v P',
+		protected bool $log_header = true
 	) {
 		if (!is_dir($this->log_dir)) {
 			mkdir($this->log_dir);
 		}
-		$this->log_file = $log_dir . '/' . date($this->filename_date_format) . '.log';
+
+		if (empty($this->filename)) {
+			// Set default filename.
+			$this->filename = date('Y-m-d') . '.log';
+		}
+
+		$this->log_file = $log_dir . '/' . $this->filename;
 
 		$this->handle = fopen($this->log_file, 'a');
 
@@ -62,7 +69,7 @@ class AcLog {
 	}
 
 	protected function print_header(): void {
-		if (!$this->is_header_logged) {
+		if ($this->log_header && !$this->is_header_logged) {
 			fwrite($this->handle, str_repeat('=', 10) . "[ '" . date($this->header_date_format) . "' ]" . str_repeat('=', 10)  . PHP_EOL);
 			$this->is_header_logged = true;
 		}

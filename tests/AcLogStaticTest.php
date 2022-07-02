@@ -55,17 +55,19 @@ class AcLogStaticTest extends TestCase {
 
 	public function testOptions(): void {
 		// Test as many options as possible.
+		$filename = date('Y-m-d-') . uniqid() . '.txt';
+
 		AcLogStatic::setup([
 			'log_dir' => $this->logdir,
 			'output_method' => AcLog::VAR_DUMP,
-			'filename_date_format' => 'Ymd',
+			'filename' => $filename,
 			'header_date_format' => 'Ymd',
 			'line_breaks_between_header' => 6,
 			'log_date_format' => 'YmHi'
 		]);
 		AcLogStatic::set_testing(true);
 
-		$log_path = $this->logdir . date('Ymd') . '.log';
+		$log_path = $this->logdir . $filename;
 
 		// Log dir exists
 		$this->assertDirectoryExists($this->logdir);
