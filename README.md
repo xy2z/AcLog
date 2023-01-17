@@ -103,13 +103,13 @@ Remember to make tests for both classes: `AcLog` and `AcLogStatic`.
 
 ```
 # Fix Coding Standards (php-cs-fixer)
-vendor/bin/php-cs-fixer fix
+composer fix
 
 # Analyse code (phpstan)
-vendor/bin/phpstan analyse -c phpstan.neon
+composer analyse
 
 # Test code (phpunit)
-vendor/bin/phpunit tests --testdox
+composer test
 ```
 
 
