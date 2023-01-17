@@ -65,7 +65,6 @@ class AcLogStaticTest extends TestCase {
 			'line_breaks_between_header' => 6,
 			'log_date_format' => 'YmHi'
 		]);
-		AcLogStatic::set_testing(true);
 
 		$log_path = $this->logdir . $filename;
 
@@ -97,7 +96,6 @@ class AcLogStaticTest extends TestCase {
 
 	public function testLogFound(): void {
 		AcLogStatic::setup($this->logdir);
-		AcLogStatic::set_testing(true);
 		$this->assertFileExists($this->logdir . date('Y-m-d') . '.log');
 
 		// Log the string.
@@ -110,7 +108,6 @@ class AcLogStaticTest extends TestCase {
 
 	public function testCallbacks(): void {
 		AcLogStatic::setup($this->logdir);
-		AcLogStatic::set_testing(true);
 
 		AcLogStatic::add_log_append_callback(function () {
 			return 'callback-1.';
@@ -130,7 +127,6 @@ class AcLogStaticTest extends TestCase {
 
 	public function testClearFile(): void {
 		AcLogStatic::setup($this->logdir);
-		AcLogStatic::set_testing(true);
 
 		AcLogStatic::log('hello.');
 		$this->assertTrue(static::file_contains(AcLogStatic::get_log_file(), 'hello.'));

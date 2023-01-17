@@ -10,7 +10,7 @@ class AcLog {
 	protected mixed /* resource */  $handle;
 	protected bool $is_header_logged = false;
 	protected int $count_logged = 0;
-	protected bool $is_testing = false;
+	protected bool $is_static = false; // via AcLogStatic.
 
 	public const VAR_EXPORT = 0;
 	public const PRINT_R = 1;
@@ -84,13 +84,13 @@ class AcLog {
 			$datetime = '';
 
 			if ($this->include_trace) {
-				$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-				if ($this->is_testing) {
-					$caller = $trace[2];
-				} else {
-					$caller = $trace[0];
+				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+				$caller = ($this->is_static) ? $backtrace[2] : $backtrace[0];
+
+				if (isset($caller['file']) && isset($caller['line'])) {
+					// When using AcLogStatic, 'file' and 'line' might not be set.
+					$trace = '[' . $caller['file'] . ':' . $caller['line'] . '] ';
 				}
-				$trace = '[' . $caller['file'] . ':' . $caller['line'] . '] ';
 			}
 
 			if ($this->log_date_format) {
@@ -141,9 +141,8 @@ class AcLog {
 		return $this->log_file;
 	}
 
-	public function set_testing(bool $val): void {
-		// This is only to be used for phpunit testing for the static class.
-		// This way it won't affect the perfomance of the log() method.
-		$this->is_testing = true;
+	public function set_static(bool $val): void {
+		// This is automatically set on new AcLog instances via AcLogStatic::setup().
+		$this->is_static = $val;
 	}
 }

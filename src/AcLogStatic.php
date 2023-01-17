@@ -18,6 +18,8 @@ abstract class AcLogStatic {
 		} else {
 			static::$aclog = new AcLog(...$args);
 		}
+
+		static::$aclog->set_static(true);
 	}
 
 	/**
@@ -31,7 +33,7 @@ abstract class AcLogStatic {
 		try {
 			$var = call_user_func_array([static::$aclog, $name], $arguments);
 		} catch (TypeError $e) {
-			// If they try to access protected/private methods.
+			// If they try to access protected/private/unknown methods.
 			error_log($e->getMessage());
 		}
 
