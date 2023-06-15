@@ -2,7 +2,9 @@
 
 AcLog is a simple, zero-dependency PHP package to log activity to files.
 
-This is not meant for logging errors, this is can be used for logging cronjobs, emails, user activity, etc.
+AcLog can be used to easily log actions such as cronjobs, emails, user activity, details about errors, etc.
+
+_🧡 Sponsored by **[Datsi.app - Your personal database](https://datsi.app/)**._
 
 
 ## Requirements
