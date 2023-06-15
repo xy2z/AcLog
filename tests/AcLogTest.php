@@ -7,6 +7,10 @@ require __DIR__ . '/../src/AcLog.php';
 use xy2z\AcLog\AcLog;
 use PHPUnit\Framework\TestCase;
 
+class TestSimpleClass {
+	public $foo = 'bar';
+}
+
 class AcLogTest extends TestCase {
 	private string $logdir;
 
@@ -122,7 +126,10 @@ class AcLogTest extends TestCase {
 	}
 
 	public function testCallbacks(): void {
-		$aclog = new AcLog($this->logdir);
+		$aclog = new AcLog(
+			log_dir: $this->logdir,
+			output_method: AcLog::PRINT_R,
+		);
 
 		$aclog->add_log_append_callback(function () {
 			return 'callback-1.';
@@ -131,9 +138,31 @@ class AcLogTest extends TestCase {
 			return 'callback-2.';
 		});
 
+		$aclog->add_log_append_callback(function () {
+			// test array
+			return ['callback-array-3.0', 'callback-array-3.1'];
+		});
+
+		$aclog->add_log_append_callback(function () {
+			// test stdClass/array object
+			return (object) ['testing' => 'callback-object-4.0'];
+		});
+
+		$aclog->add_log_append_callback(function () {
+			// test class object
+			return new TestSimpleClass();
+		});
+
 		$aclog->log('hello.', 'andgoodbye.', ['array.']);
+
+		// echo file_get_contents($aclog->get_log_file());
 		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'callback-1.'));
 		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'callback-2.'));
+		$this->assertTrue(static::file_contains($aclog->get_log_file(), "[0] => callback-array-3.0"));
+		$this->assertTrue(static::file_contains($aclog->get_log_file(), "[1] => callback-array-3.1"));
+		$this->assertTrue(static::file_contains($aclog->get_log_file(), "[testing] => callback-object-4.0"));
+		$this->assertTrue(static::file_contains($aclog->get_log_file(), "TestSimpleClass Object"));
+		$this->assertTrue(static::file_contains($aclog->get_log_file(), "[foo] => bar"));
 		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'hello.'));
 		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'andgoodbye.'));
 		$this->assertTrue(static::file_contains($aclog->get_log_file(), 'array.'));

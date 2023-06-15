@@ -103,7 +103,8 @@ class AcLog {
 
 		// Append callback to each log() call.
 		foreach ($this->log_append_callbacks as $callback) {
-			fwrite($this->handle, call_user_func($callback) . PHP_EOL);
+			$value = call_user_func($callback);
+			fwrite($this->handle, $this->get_var_output($value));
 		}
 	}
 
